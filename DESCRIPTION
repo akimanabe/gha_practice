@@ -16,7 +16,8 @@ RoxygenNote: 7.1.1
 Imports: 
     magrittr,
     dplyr,
-    readr
+    readr,
+    stats
 Depends: 
     R (>= 2.10)
 Suggests: 
