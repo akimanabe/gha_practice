@@ -1,2 +1,2 @@
-# gha_practice
+# ghatestr
 practice GitHub actions for 
