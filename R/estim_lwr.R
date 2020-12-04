@@ -17,6 +17,6 @@
 estim_lwr <- function(dat, sex = c(1, 2), param = list(a = 1e-5, b = 3)) {
   dat %>%
     dplyr::filter(Sex %in% sex) %>%
-    nls(Weight ~ a * Length ^ b, data = ., start = param) %>%
+    stats::nls(Weight ~ a * Length ^ b, data = ., start = param) %>%
     broom::tidy(.)
 }
