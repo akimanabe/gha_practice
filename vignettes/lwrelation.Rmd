@@ -1,0 +1,79 @@
+---
+title: "lwrelation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{lwrelation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+devtools::load_all()
+library(ggplot2)
+
+mytheme <-
+  theme_bw(base_size = 14) +
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
+  
+```
+
+# Plot raw Length-Weight data
+
+```{r, fig.height = 5, fig.width = 7}
+ggplot(lwdata, aes(x = Length, y = Weight, colour = Sex)) +
+  geom_point() +
+  labs(x = "Length (mm)", y = "Weight (g)") +
+  coord_cartesian(xlim = c(0, 400)) +
+  mytheme
+```
+
+# Plot raw Length-Weight data by sex
+
+```{r, fig.height = 5, fig.width = 7}
+# Curve fitting to Male data
+res_m  <- estim_lwr(lwdata, sex = 1)
+show(res_m)
+res_m <- res_m %>% dplyr::pull(estimate)
+
+# Curve fitting to Female data
+res_f  <- estim_lwr(lwdata, sex = 2)
+show(res_f)
+res_f <- res_f %>% dplyr::pull(estimate)
+
+# Curve fitting to Both data
+res_mf <- estim_lwr(lwdata, sex = c(1, 2))
+show(res_mf)
+res_mf <- res_mf %>% dplyr::pull(estimate)
+
+# Plot relationships
+lwdata %>%
+  dplyr::mutate(Male   = res_m[1] * Length ^ res_m[2],
+                Female = res_f[1] * Length ^ res_f[2],
+                Both   = res_mf[1] * Length ^ res_mf[2]) %>%
+  dplyr::mutate(Male   = dplyr::if_else(Sex == 1,
+                                        Male,
+                                        NA_real_,
+                                        missing = NA_real_),
+                Female = dplyr::if_else(Sex == 2,
+                                        Female,
+                                        NA_real_,
+                                        missing = NA_real_)) %>%
+    ggplot(.) +
+    geom_point(aes(x = Length, y = Weight, color = Sex), alpha = 0.4) +
+  stat_function(data = data.frame(x = c(0, 400)), fun = function(x) res_m[1] * x ^ res_m[2], aes(colour = "Male")) +
+  stat_function(data = data.frame(x = c(0, 400)), fun = function(x) res_f[1] * x ^ res_f[2], aes(colour = "Female")) +
+  stat_function(data = data.frame(x = c(0, 400)), fun = function(x) res_mf[1] * x ^ res_mf[2], aes(colour = "Both")) +
+  labs(x = "Length (mm)", y = "Weight (g)") +
+  coord_cartesian(xlim = c(0, 400),
+                  ylim = c(0, 1000)) +
+  mytheme
+
+```
