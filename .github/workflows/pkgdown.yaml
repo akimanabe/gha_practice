@@ -10,7 +10,7 @@ jobs:
   pkgdown:
     runs-on: ubuntu-16.04
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GHATESTR_PAT }}
     steps:
       - uses: actions/checkout@v2
 
