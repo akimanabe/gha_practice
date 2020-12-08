@@ -38,15 +38,20 @@ jobs:
 
       - name: Install dependencies
         run: |
+          install.packages("remotes")
           remotes::install_deps(dependencies = TRUE)
-          install.packages("pkgdown", type = "source")
+          remotes::install_dev("pkgdown")
         shell: Rscript {0}
 
       - name: Install package
         run: R CMD INSTALL .
 
-      - name: Deploy package
+      - name: Establish git credentials
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          Rscript -e 'pkgdown::deploy_to_branch(new_process = FALSE)'
+          install.packages("usethis")
+          usethis::use_git_config(user.name = "GitHub Action", user.email = "foobar@email.com")
+        shell: Rscript {0}
+
+      - name: Deploy package
+        run: pkgdown::deploy_to_branch(new_process = FALSE)
+        shell: Rscript {0}
